@@ -49,8 +49,10 @@ const ChatTutor = () => {
       setMessages(prev => [...prev, { role: 'model', content: responseText }]);
     } catch (err) {
       console.error('Chat send failed:', err);
-      setError('Connection error. Please try again.');
-      setMessages(prev => [...prev, { role: 'model', content: 'Connection error. Please try again.' }]);
+      const backendMessage = err?.response?.data?.message || err?.response?.data?.error;
+      const clientMessage = backendMessage || err.message || 'Connection error. Please try again.';
+      setError(clientMessage);
+      setMessages(prev => [...prev, { role: 'model', content: clientMessage }]);
     } finally {
       setIsTyping(false);
     }

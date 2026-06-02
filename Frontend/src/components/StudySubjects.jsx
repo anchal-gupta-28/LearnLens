@@ -12,6 +12,10 @@ const StudySubjects = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const uniqueSubjects = React.useMemo(() => {
+    return Array.from(new Map(subjects.map((subject) => [subject.title?.toLowerCase().trim() || subject.slug || subject._id, subject])).values());
+  }, [subjects]);
+
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
@@ -66,7 +70,7 @@ const StudySubjects = () => {
           </div>
 
           <div className="grid gap-3">
-            {subjects.map((subject) => (
+            {uniqueSubjects.map((subject) => (
               <button
                 key={subject._id}
                 type="button"

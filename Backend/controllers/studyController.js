@@ -40,7 +40,15 @@ const getClassMaterials = async (req, res) => {
       .populate('subject', 'title slug')
       .populate('chapter', 'title slug');
 
-    const subjectOverview = await Promise.all(subjects.map(async subject => {
+    const uniqueSubjects = subjects.reduce((map, subject) => {
+      const key = subject.title?.toLowerCase().trim() || subject.slug || subject._id.toString();
+      if (!map.has(key)) {
+        map.set(key, subject);
+      }
+      return map;
+    }, new Map());
+
+    const subjectOverview = await Promise.all(Array.from(uniqueSubjects.values()).map(async subject => {
       const chapterCount = await Chapter.countDocuments({ subject: subject._id });
       const completedCount = await Progress.countDocuments({ user: req.user._id, subject: subject._id, status: 'completed' });
       return {

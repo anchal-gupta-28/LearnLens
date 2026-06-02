@@ -9,6 +9,10 @@ const StudentSubjectSelection = () => {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const uniqueSubjects = React.useMemo(() => {
+    return Array.from(new Map(subjects.map((subject) => [subject.title?.toLowerCase().trim() || subject.slug || subject._id, subject])).values());
+  }, [subjects]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -56,7 +60,7 @@ const StudentSubjectSelection = () => {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {subjects.map((subject) => (
+        {uniqueSubjects.map((subject) => (
           <Card key={subject._id} className="p-6 hover:border-primary-400 hover:bg-slate-900 transition-all">
             <div className="flex flex-col justify-between h-full">
               <div>
