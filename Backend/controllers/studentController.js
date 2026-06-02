@@ -84,3 +84,81 @@ exports.getStudentGaps = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Get student's assigned quizzes (pending + completed)
+exports.getStudentQuizzes = async (req, res) => {
+  try {
+    // 1. Find all classes this student belongs to
+    const classes = await Class.find({ students: req.user._id }).select('_id name section');
+    const classIds = classes.map(c => c._id);
+
+    if (classIds.length === 0) {
+      return res.json({ pending: [], completed: [] });
+    }
+
+    // 2. Find all quizzes assigned to these classes
+    const allQuizzes = await Quiz.find({ class: { $in: classIds } })
+      .populate('class', 'name section')
+      .populate('teacher', 'name')
+      .sort({ createdAt: -1 });
+
+    // 3. Find all results submitted by this student
+    const results = await Result.find({ student: req.user._id })
+      .populate('quiz', '_id');
+
+    const attemptedQuizIds = new Set(results.map(r => r.quiz?._id?.toString()));
+
+    // 4. Categorise
+    const pending = [];
+    const completed = [];
+
+    for (const quiz of allQuizzes) {
+      const quizId = quiz._id.toString();
+      if (attemptedQuizIds.has(quizId)) {
+        const result = results.find(r => r.quiz?._id?.toString() === quizId);
+        completed.push({
+          _id:           quiz._id,
+          title:         quiz.title,
+          subject:       quiz.subject,
+          topic:         quiz.topic,
+          difficulty:    quiz.difficulty,
+          questionCount: quiz.questions?.length || 0,
+          duration:      quiz.duration,
+          dueDate:       quiz.dueDate,
+          isAIGenerated: quiz.isAIGenerated,
+          class:         quiz.class,
+          teacher:       quiz.teacher,
+          createdAt:     quiz.createdAt,
+          result: {
+            score:            result.score,
+            totalQuestions:   result.totalQuestions,
+            percentage:       result.percentage ?? Math.round((result.score / Math.max(result.totalQuestions, 1)) * 100),
+            topicPerformance: result.topicPerformance,
+            completionTime:   result.completionTime || result.timeTaken,
+            submittedAt:      result.submittedAt || result.completedAt,
+          }
+        });
+      } else {
+        pending.push({
+          _id:           quiz._id,
+          title:         quiz.title,
+          subject:       quiz.subject,
+          topic:         quiz.topic,
+          difficulty:    quiz.difficulty,
+          questionCount: quiz.questions?.length || 0,
+          duration:      quiz.duration,
+          dueDate:       quiz.dueDate,
+          isAIGenerated: quiz.isAIGenerated,
+          class:         quiz.class,
+          teacher:       quiz.teacher,
+          createdAt:     quiz.createdAt,
+        });
+      }
+    }
+
+    res.json({ pending, completed });
+  } catch (error) {
+    console.error('getStudentQuizzes error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};

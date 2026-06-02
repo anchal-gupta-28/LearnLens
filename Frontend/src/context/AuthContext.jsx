@@ -65,6 +65,7 @@ export const AuthProvider = ({ children }) => {
     const res = await axios.post(`${API_URL}/auth/register`, normalizedData);
     setUser(res.data);
     localStorage.setItem('user', JSON.stringify(res.data));
+    localStorage.removeItem('selectedSubject');
     axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
     return res.data;
   };

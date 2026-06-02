@@ -9,6 +9,7 @@ import ClassManagement from './pages/ClassManagement';
 import QuizManagement from './pages/QuizManagement';
 import ChatTutor from './pages/ChatTutor';
 import QuizPage from './pages/QuizPage';
+import StudentQuizzes from './pages/StudentQuizzes';
 import StudyPage from './pages/StudyPage';
 import StudentClassSelection from './pages/StudentClassSelection';
 import StudentSubjectSelection from './pages/StudentSubjectSelection';
@@ -73,6 +74,11 @@ function AppRoutes() {
             </ProtectedRoute>
           } />
 
+          <Route path="/student/quizzes" element={
+            <ProtectedRoute allowedRole="student">
+              <StudentQuizzes />
+            </ProtectedRoute>
+          } />
           <Route path="/student/study/:subjectId" element={
             <ProtectedRoute allowedRole="student">
               <StudyPage />

@@ -172,27 +172,60 @@ exports.submitQuiz = async (req, res) => {
       topic,
       correct: topicStats[topic].correct,
       total: topicStats[topic].total,
-      accuracy: (topicStats[topic].correct / topicStats[topic].total) * 100
+      accuracy: Math.round((topicStats[topic].correct / topicStats[topic].total) * 100)
     }));
 
+    const totalQuestions = quiz.questions.length;
+    const percentage = Math.round((score / Math.max(totalQuestions, 1)) * 100);
+    const completionTime = timeTaken || 0;
+    const submittedAt = new Date();
+
     const result = await Result.create({
-      student: req.user._id,
-      quiz: quiz._id,
+      // String convenience fields
+      studentId:  req.user._id.toString(),
+      quizId:     quiz._id.toString(),
+      subject:    quiz.subject,
+
+      // ObjectId references
+      student:        req.user._id,
+      quiz:           quiz._id,
+
+      // Score data
       score,
-      totalQuestions: quiz.questions.length,
+      totalQuestions,
+      percentage,
       topicPerformance,
-      timeTaken
+
+      // Time & date
+      completionTime,
+      timeTaken:    completionTime,
+      submittedAt,
+      completedAt:  submittedAt,
     });
 
-    const performanceData = { score, totalQuestions: quiz.questions.length, topicPerformance, timeTaken };
-    const gaps = await analyzeLearningGaps(performanceData);
-    if (gaps) {
-      await LearningGap.create({ student: req.user._id, quiz: quiz._id, ...gaps });
+    // Trigger AI Learning Gap Analysis (non-blocking on failure)
+    let gaps = null;
+    try {
+      const performanceData = {
+        subject:        quiz.subject,
+        topic:          quiz.topic,
+        score,
+        totalQuestions,
+        percentage,
+        topicPerformance,
+        timeTaken: completionTime
+      };
+      gaps = await analyzeLearningGaps(performanceData);
+      if (gaps) {
+        await LearningGap.create({ student: req.user._id, quiz: quiz._id, ...gaps });
+      }
+    } catch (aiErr) {
+      console.error('Learning gap analysis failed (non-fatal):', aiErr.message);
     }
 
     res.status(201).json({ result, gaps });
   } catch (error) {
-    console.error(error);
+    console.error('submitQuiz error:', error);
     res.status(500).json({ message: error.message });
   }
 };

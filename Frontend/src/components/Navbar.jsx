@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, LayoutDashboard, BrainCircuit, User as UserIcon, BookOpen, ArrowRight, Layers } from 'lucide-react';
+import { LogOut, LayoutDashboard, BrainCircuit, User as UserIcon, BookOpen, ArrowRight, Layers, ClipboardList } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout, loading } = useAuth();
@@ -33,6 +33,11 @@ const Navbar = () => {
             {user.role === 'student' && user.studentClass && (
               <NavLink to="/student/dashboard" className={({isActive}) => `flex items-center gap-2 hover:text-primary-400 transition-all font-medium ${isActive ? 'text-primary-500' : 'text-slate-400'}`}>
                 <BrainCircuit size={18} /> Dashboard
+              </NavLink>
+            )}
+            {user.role === 'student' && (
+              <NavLink to="/student/quizzes" className={({isActive}) => `flex items-center gap-2 hover:text-primary-400 transition-all font-medium ${isActive ? 'text-primary-500' : 'text-slate-400'}`}>
+                <ClipboardList size={18} /> Quizzes
               </NavLink>
             )}
             {user.role === 'student' && (
