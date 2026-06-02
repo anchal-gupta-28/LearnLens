@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Brain, Target, LineChart, MessageSquare, ArrowRight, ShieldCheck } from 'lucide-react';
+import heroImg from '../assets/hero.png';
 
 const LandingPage = () => {
   return (
@@ -86,10 +87,11 @@ const LandingPage = () => {
             className="glass p-4 rounded-3xl border-white/10 shadow-2xl relative group"
           >
             <div className="absolute inset-0 bg-primary-600/20 blur-[100px] -z-10 group-hover:bg-primary-600/30 transition-all" />
-            <img 
-              src="https://images.unsplash.com/photo-1551288049-bbbda536339a?auto=format&fit=crop&q=80&w=1000" 
-              alt="Dashboard Preview" 
+            <img
+              src={heroImg}
+              alt="Dashboard Preview"
               className="rounded-2xl w-full"
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="600"><rect width="100%" height="100%" fill="%23111a2b"/><text x="50%" y="50%" fill="%23ccc" font-size="24" text-anchor="middle" dominant-baseline="middle">Dashboard Preview</text></svg>'; }}
             />
           </motion.div>
         </div>

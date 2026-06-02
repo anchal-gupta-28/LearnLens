@@ -11,14 +11,6 @@ const StudentClassSelection = () => {
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (user?.studentClass && selectedSubject) {
-      navigate('/student/dashboard');
-    } else if (user?.studentClass) {
-      navigate('/student/subjects');
-    }
-  }, [user, selectedSubject, navigate]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
