@@ -17,10 +17,8 @@ if (AI_PROVIDER === 'google') {
   if (!GOOGLE_API_KEY) {
     throw new Error('Missing GOOGLE_API_KEY. Set GOOGLE_API_KEY in Backend/.env to use Gemini.');
   }
-  // The GoogleGenerativeAI client expects an options object with the apiKey.
-  // Wrap the key in an object to ensure compatibility with the library.
   try {
-    googleClient = new GoogleGenerativeAI({ apiKey: GOOGLE_API_KEY });
+    googleClient = new GoogleGenerativeAI(GOOGLE_API_KEY);
     console.log('[aiService] GoogleGenerativeAI initialized');
   } catch (err) {
     console.error('[aiService] Failed to initialize GoogleGenerativeAI:', err);
